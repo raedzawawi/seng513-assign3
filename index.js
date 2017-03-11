@@ -4,12 +4,10 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var express = require('express');
 var moment = require('moment');
-var parseColour = require('parse-color');
+var parseC = require('parse-color');
 
 var users = {};
 var colors = {};
-var namesUsed = [];
-var counter = 0;
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/public/index.html');
@@ -17,7 +15,7 @@ app.get('/', function(req, res){
 
 io.on('connection', function(socket){
   socket.on('new user', function() {
-    console.log('a user connected with id:' + socket.id);
+    console.log('a user connected');
     var username = "User" + Math.floor((Math.random() * 1000) + 1);
     users[socket.id] = username;
     io.emit('new signin', users, socket.id);
@@ -26,18 +24,17 @@ io.on('connection', function(socket){
 
   io.emit('update users', users);
 
+  // On each message sent
   socket.on('chat message', function(msg) {
-    console.log('message: ' + msg);
 
     var nickregex = new RegExp('(\/nick) (.*)');
     var colorregex = new RegExp('(\/nickcolor) (.*)');
     var nickCheck = nickregex.exec(msg);
     var colorCheck = colorregex.exec(msg);
 
-
+    // Check if someone is changing their username
     if(nickCheck) {
       var bol = 0;
-      console.log("Herro!");
       for (u in users) {
         if(users[u] == nickCheck[2]) {
           bol = 1;
@@ -49,25 +46,27 @@ io.on('connection', function(socket){
       io.emit('update users',users);
     }
 
+    // Check if someone is changing the color of their username
     if (colorCheck) {
-      var inputtedColor = parseColour("#" + colorCheck[2]);
+      var inputtedColor = parseC("#" + colorCheck[2]);
       if (inputtedColor.hex) {
-        console.log("Heroku!");
         colors[socket.id] = inputtedColor.hex;
       }
     }
 
+    // Store the information in an object
     var information = {
       id: socket.id,
       username: users[socket.id],
       message: msg,
       color: colors[socket.id],
-      timestamp: moment().format("MMM/DD/YYYY - kk:mm")
+      time: moment().format("MMM Do YY, h:mm")
     };
 
     io.emit('print message',information);
   });
 
+  // When the user disconnects delete the user from the list
   socket.on('disconnect', function(){
     console.log('user disconnected');
     delete users[socket.id];

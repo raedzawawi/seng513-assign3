@@ -123,10 +123,12 @@
 	  $(function () {
 	    var socket = io();
 
+	    // Emit new user event on a new connection
 		socket.on('connect', function() {
 			socket.emit('new user');
 		});
 
+		// For a new signin, update the username at the top
 		socket.on('new signin', function(users, id) {
 			if (id === socket.id) {
 				$('#hello').html(function() {
@@ -137,7 +139,7 @@
 
 		socket.on('update users', function(users){
 			$('#online-users').empty();
-			$.each(users, function(socketId, username){
+			$.each(users, function(id, username){
 				$('#online-users').append($('<li>').text(username));
 			});
 		});
@@ -153,11 +155,11 @@
 		socket.on('print message', function(msg) {
 			if (msg.id === socket.id) {
 				$('#messages').append($('<li>').html(function() {
-					return "<strong style='color: " + msg.color + "'>" + msg.timestamp + " " + msg.username + ": " + msg.message + "</strong>";
+					return "<b style='color: " + msg.color + "'>" + msg.time + " " + msg.username + ": " + msg.message + "</b>";
 				}));
 			} else {
 				$('#messages').append($('<li>').html(function() {
-					return "<span style='color: " + msg.color + "'>" + msg.timestamp + " " + msg.username + ": " + msg.message + "</span>";
+					return "<span style='color: " + msg.color + "'>" + msg.time + " " + msg.username + ": " + msg.message + "</span>";
 				}));
 			}
 			$('#msg-box').animate({scrollTop: $(document).height() + "px"});
