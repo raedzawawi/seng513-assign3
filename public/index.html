@@ -117,6 +117,8 @@
     <script src="/socket.io/socket.io.js"></script>
 	<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 	<script>
+		// Sample code used from https://socket.io/get-started/chat/
+		
 		$( document ).ready(function() {
 			$( "#m" ).focus();
 		});
@@ -155,11 +157,11 @@
 		socket.on('print message', function(msg) {
 			if (msg.id === socket.id) {
 				$('#messages').append($('<li>').html(function() {
-					return "<b style='color: " + msg.color + "'>" + msg.time + " " + msg.username + ": " + msg.message + "</b>";
+					return "<b style='color: " + msg.color + "'>" + msg.time + " -> " + msg.username + ": " + msg.message + "</b>";
 				}));
 			} else {
 				$('#messages').append($('<li>').html(function() {
-					return "<span style='color: " + msg.color + "'>" + msg.time + " " + msg.username + ": " + msg.message + "</span>";
+					return "<span style='color: " + msg.color + "'>" + msg.time + " -> " + msg.username + ": " + msg.message + "</span>";
 				}));
 			}
 			$('#msg-box').animate({scrollTop: $(document).height() + "px"});

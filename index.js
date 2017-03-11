@@ -9,6 +9,8 @@ var parseC = require('parse-color');
 var users = {};
 var colors = {};
 
+// Sample code used from https://socket.io/get-started/chat/
+
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/public/index.html');
 });

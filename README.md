@@ -14,3 +14,4 @@ Instructions
 Important notes
 1. Make sure you have node installed
 2. Make sure you don't anything else running on port 3000
+3. Sample code used from https://socket.io/get-started/chat/
