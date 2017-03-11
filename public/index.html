@@ -1,0 +1,169 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <style>
+    	* {
+    		margin: 0;
+    		padding: 0;
+    		box-sizing: border-box;
+    	}
+
+		body {
+			background-color: rgb(52, 152, 219);
+		}
+
+    	#msg-box {
+    		height: 70vh;
+    		overflow-y: scroll;
+			background-color: rgb(236, 240, 241);
+			border-radius: 5px;
+    	}
+
+    	#messages {
+    		list-style: none;
+    	}
+
+		#messages li {
+			padding: 10px;
+		}
+
+    	#messages li:nth-child(odd) {
+    		background: rgb(189, 195, 199);
+    	}
+
+    	#online-users {
+    		list-style: none;
+    	}
+
+		#online-users li {
+			padding: 10px;
+		}
+
+    	#online-users li:nth-child(odd) {
+    		background: rgb(189, 195, 199);
+    	}
+
+    	#message-box {
+    		position: fixed;
+    		bottom: 0;
+    		width: 100%;
+    		background-color: black;
+    		padding: 10px;
+    	}
+
+    	input#m {
+    		width: 100%;
+    	}
+
+    	button {
+    		width: 100%;
+    	}
+
+    	#online-users-box {
+			border-radius: 5px;
+    		background-color: rgb(236, 240, 241);
+    		height: 70vh;
+			overflow-y: scroll;
+    		margin-top: 10px;
+    	}
+
+		@media screen and (max-width: 992px) {
+			#online-users-box {
+				height: 30vh;
+			}
+
+			#msg-box {
+				height: 30vh;
+			}
+		}
+    </style>
+  </head>
+  <body>
+  	<div class="container-fluid">
+		<div class="row">
+			<div class="col-xs-12">
+				<h3 id="hello"></h3>
+			</div>
+		</div>
+  		<div class="row">
+  			<div class="col-md-4">
+  				<h3>Online Users</h3>
+				<div id="online-users-box">
+					<ul id="online-users"></ul>
+				</div>
+  			</div>
+  			<div class="col-md-8">
+  				<h3>Messages</h3>
+				<div id="msg-box">	
+  					<ul id="messages"></ul>
+  				</div>
+  				
+  			</div>
+  		</div>
+  		<div id="message-box" class="row">
+  			<form class="form-inline">
+  			<div class="col-md-11">
+  				<input id="m" class="form-control" autocomplete="off" />
+  			</div>
+  			<div class="col-md-1">
+  				<button class="btn btn-success">Send</button>
+  			</div>
+			</form>
+  		</div>
+  	</div>
+    
+    <script src="/socket.io/socket.io.js"></script>
+	<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+	<script>
+		$( document ).ready(function() {
+			$( "#m" ).focus();
+		});
+	  $(function () {
+	    var socket = io();
+
+		socket.on('connect', function() {
+			socket.emit('new user');
+		});
+
+		socket.on('new signin', function(users, id) {
+			if (id === socket.id) {
+				$('#hello').html(function() {
+					return "You are: " + users[socket.id];
+				});
+			}
+		});
+
+		socket.on('update users', function(users){
+			$('#online-users').empty();
+			$.each(users, function(socketId, username){
+				$('#online-users').append($('<li>').text(username));
+			});
+		});
+
+	    $('form').submit(function(){
+		  if ($('#m').val() != "") {
+			socket.emit('chat message', $('#m').val());
+	      	$('#m').val('');
+		  }
+	      return false;
+	    });
+		
+		socket.on('print message', function(msg) {
+			if (msg.id === socket.id) {
+				$('#messages').append($('<li>').html(function() {
+					return "<strong style='color: " + msg.color + "'>" + msg.timestamp + " " + msg.username + ": " + msg.message + "</strong>";
+				}));
+			} else {
+				$('#messages').append($('<li>').html(function() {
+					return "<span style='color: " + msg.color + "'>" + msg.timestamp + " " + msg.username + ": " + msg.message + "</span>";
+				}));
+			}
+			$('#msg-box').animate({scrollTop: $(document).height() + "px"});
+		});
+
+	  });
+	</script>  
+	</body>
+</html>
